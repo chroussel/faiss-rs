@@ -151,6 +151,36 @@ macro_rules! impl_native_index {
                 }
             }
 
+            fn reconstruct(&self, key: crate::index::Idx) -> Result<Vec<f32>> {
+                let mut x = vec![0_f32; self.d() as usize];
+                unsafe {
+                    faiss_try(faiss_Index_reconstruct(
+                        self.inner_ptr(),
+                        key.to_native(),
+                        x.as_mut_ptr(),
+                    ))?
+                }
+                Ok(x)
+            }
+
+            fn reconstruct_n(
+                &self,
+                start: crate::index::Idx,
+                length: crate::index::Idx,
+            ) -> Result<Vec<f32>> {
+                let l = length.to_native() as usize;
+                let mut x = vec![0_f32; self.d() as usize * l];
+                unsafe {
+                    faiss_try(faiss_Index_reconstruct_n(
+                        self.inner_ptr(),
+                        start.to_native(),
+                        length.to_native(),
+                        x.as_mut_ptr(),
+                    ))?
+                }
+                Ok(x)
+            }
+
             fn remove_ids(&mut self, sel: &IdSelector) -> Result<usize> {
                 unsafe {
                     let mut n_removed = 0;

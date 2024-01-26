@@ -220,6 +220,36 @@ impl<BI> Index for RefineFlatIndexImpl<BI> {
             faiss_Index_set_verbose(self.inner, std::os::raw::c_int::from(value));
         }
     }
+
+    fn reconstruct(&self, key: crate::index::Idx) -> Result<Vec<f32>> {
+        let mut x = vec![0_f32; self.d() as usize];
+        unsafe {
+            faiss_try(faiss_Index_reconstruct(
+                self.inner_ptr(),
+                key.to_native(),
+                x.as_mut_ptr(),
+            ))?
+        }
+        Ok(x)
+    }
+
+    fn reconstruct_n(
+        &self,
+        start: crate::index::Idx,
+        length: crate::index::Idx,
+    ) -> Result<Vec<f32>> {
+        let l = length.to_native() as usize;
+        let mut x = vec![0_f32; self.d() as usize * l];
+        unsafe {
+            faiss_try(faiss_Index_reconstruct_n(
+                self.inner_ptr(),
+                start.to_native(),
+                length.to_native(),
+                x.as_mut_ptr(),
+            ))?
+        }
+        Ok(x)
+    }
 }
 
 impl<I> TryClone for RefineFlatIndexImpl<I> {

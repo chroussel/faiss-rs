@@ -185,6 +185,12 @@ pub trait Index {
 
     /// Set Index verbosity level
     fn set_verbose(&mut self, value: bool);
+
+    /// Reconstruct the vector from the given Id
+    fn reconstruct(&self, xid: Idx) -> Result<Vec<f32>>;
+
+    /// Reconstruct the vector from the range
+    fn reconstruct_n(&self, start: Idx, length: Idx) -> Result<Vec<f32>>;
 }
 
 impl<I> Index for Box<I>
@@ -245,6 +251,14 @@ where
 
     fn set_verbose(&mut self, value: bool) {
         (**self).set_verbose(value)
+    }
+
+    fn reconstruct(&self, xid: Idx) -> Result<Vec<f32>> {
+        (**self).reconstruct(xid)
+    }
+
+    fn reconstruct_n(&self, start: Idx, length: Idx) -> Result<Vec<f32>> {
+        (**self).reconstruct_n(start, length)
     }
 }
 
